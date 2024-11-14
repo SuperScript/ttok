@@ -130,7 +130,6 @@ def cli(
     elif chunksize:
         for chunk in chunks:
             click.echo(encoding.decode(chunk))
-            click.echo("HEREUR")
     elif truncate:
         click.echo(encoding.decode(tokens), nl=False)
     else:
