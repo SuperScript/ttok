@@ -20,6 +20,7 @@ import tiktoken
 )
 @click.option("as_tokens", "--tokens", is_flag=True, help="Output full tokens")
 @click.option("--allow-special", is_flag=True, help="Do not error on special tokens")
+@click.option("--chunksize", type=int, help="Output chunks of this size")
 def cli(
     prompt,
     input,
@@ -29,6 +30,7 @@ def cli(
     decode_tokens,
     as_tokens,
     allow_special,
+    chunksize,
 ):
     """
     Count and truncate text based on tokens
@@ -113,12 +115,24 @@ def cli(
     if truncate:
         tokens = tokens[:truncate]
 
+    if chunksize:
+        chunks = [tokens[i:i + chunksize] for i in range(0, len(tokens), chunksize)]
+    else:
+        chunks = [tokens]
+
     if encode_tokens:
         if as_tokens:
-            click.echo(encoding.decode_tokens_bytes(tokens))
+            for chunk in chunks:
+                click.echo(encoding.decode_tokens_bytes(chunk))
         else:
-            click.echo(" ".join(str(t) for t in tokens))
+            for chunk in chunks:
+                click.echo(" ".join(str(t) for t in chunk))
+    elif chunksize:
+        for chunk in chunks:
+            click.echo(encoding.decode(chunk))
+            click.echo("HEREUR")
     elif truncate:
         click.echo(encoding.decode(tokens), nl=False)
     else:
         click.echo(len(tokens))
+
